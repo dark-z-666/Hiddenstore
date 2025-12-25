@@ -1,0 +1,8 @@
+{
+  "name": "hidden-community-store",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^8.0.0"
+  }
+}
