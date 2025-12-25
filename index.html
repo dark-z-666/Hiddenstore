@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hidden Community Store</title>
+  <meta name="description" content="Premium Python tools with manual payment and verification." />
+  <style>
+    :root{
+      --bg:#07070a;
+      --panel:#0f0f14;
+      --panel2:#12121a;
+      --text:#eaeaf2;
+      --muted:#a7a7b6;
+      --line:rgba(255,255,255,.08);
+      --red:#ff2d2d;
+      --red2:#b80f1a;
+      --ok:#2cff8a;
+      --warn:#ffd166;
+
+      --r14:14px;
+      --r18:18px;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(900px 380px at 20% -10%, rgba(255,45,45,.24), transparent 55%),
+        radial-gradient(850px 380px at 90% 0%, rgba(255,45,45,.14), transparent 55%),
+        radial-gradient(800px 500px at 50% 105%, rgba(255,45,45,.10), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* subtle animated background, optimized */
+    .glow{
+      pointer-events:none;
+      position:fixed; inset:-20%;
+      background:
+        radial-gradient(closest-side at 25% 35%, rgba(255,45,45,.10), transparent 60%),
+        radial-gradient(closest-side at 80% 25%, rgba(255,45,45,.06), transparent 62%);
+      filter: blur(18px);
+      opacity:.9;
+      transform: translateZ(0);
+      animation: floaty 10s ease-in-out infinite;
+    }
+    @keyframes floaty{
+      0%,100%{transform: translate3d(0,0,0) scale(1)}
+      50%{transform: translate3d(0,-10px,0) scale(1.02)}
+    }
+    @media (prefers-reduced-motion: reduce){
+      .glow{animation:none}
+      *{scroll-behavior:auto !important}
+    }
+    @media (max-width: 720px){
+      .glow{filter: blur(10px); opacity:.7}
+    }
+
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:1100px; margin:0 auto; padding:22px 16px 50px}
+
+    /* header */
+    header{
+      position:sticky; top:0; z-index:50;
+      background: linear-gradient(to bottom, rgba(7,7,10,.92), rgba(7,7,10,.60));
+      border-bottom:1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+    @media (max-width:720px){ header{backdrop-filter:none} }
+
+    .head{
+      max-width:1100px; margin:0 auto;
+      padding:14px 16px;
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 220px;
+    }
+    .logo{
+      width:42px; height:42px; border-radius:14px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.14), transparent 60%),
+        linear-gradient(135deg, rgba(255,45,45,.95), rgba(140,0,0,.85));
+      box-shadow: 0 10px 30px rgba(255,45,45,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:-60%;
+      background: conic-gradient(from 180deg, transparent 0 70%, rgba(255,255,255,.14), transparent);
+      animation: spin 3.5s linear infinite;
+      opacity:.85;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .brand h1{
+      margin:0; font-size:15px; letter-spacing:.2px; line-height:1.1;
+      font-weight:800;
+    }
+    .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+    nav{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      padding:9px 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius:999px;
+      font-size:13px;
+      color:var(--muted);
+      transition:.2s ease;
+    }
+    .pill:hover{transform: translateY(-1px); border-color: rgba(255,45,45,.40); color:var(--text)}
+    .cta{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,45,45,.55);
+      background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(184,15,26,.85));
+      color:#fff; font-weight:800;
+      box-shadow: 0 16px 40px rgba(255,45,45,.18);
+    }
+    .cta:hover{filter: brightness(1.05); transform: translateY(-1px)}
+
+    /* hero */
+    .hero{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:18px;
+      padding:26px 0 8px;
+      align-items:stretch;
+    }
+    @media (max-width: 900px){ .hero{grid-template-columns:1fr} }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius: var(--r18);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .hero-left{padding:22px}
+    .kicker{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,45,45,.30);
+      background: rgba(255,45,45,.10);
+      color:#ffd7d7;
+      font-size:12px;
+      margin-bottom:12px;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--red); box-shadow: 0 0 0 4px rgba(255,45,45,.15)}
+    .hero h2{
+      margin:0;
+      font-size:34px;
+      line-height:1.08;
+      letter-spacing:-.5px;
+    }
+    .hero p{
+      margin:12px 0 0;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+      max-width: 60ch;
+    }
+    .hero-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    .btn{
+      cursor:pointer;
+      border:none;
+      border-radius: 14px;
+      padding:12px 14px;
+      font-weight:800;
+      color:#fff;
+      background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(184,15,26,.85));
+      box-shadow: 0 16px 40px rgba(255,45,45,.18);
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .btn:hover{transform: translateY(-1px); filter: brightness(1.05)}
+    .btn.secondary{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--text);
+      box-shadow:none;
+    }
+
+    .hero-right{
+      display:flex; flex-direction:column; justify-content:space-between;
+      padding:18px;
+      gap:12px;
+    }
+    .stat{
+      padding:14px;
+      border-radius: var(--r14);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+    }
+    .stat b{display:block; font-size:14px}
+    .stat span{display:block; margin-top:4px; color:var(--muted); font-size:12px; line-height:1.4}
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      display:flex; align-items:center; gap:8px;
+    }
+
+    /* products */
+    .section-title{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
+      margin:18px 0 12px;
+    }
+    .section-title h3{margin:0; font-size:18px}
+    .section-title small{color:var(--muted)}
+    .toolbar{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin:10px 0 14px;
+    }
+    .input{
+      flex:1;
+      min-width: 220px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      padding:12px 12px;
+      border-radius: 14px;
+      color:var(--text);
+      outline:none;
+    }
+    .input:focus{border-color: rgba(255,45,45,.45); box-shadow: 0 0 0 4px rgba(255,45,45,.12)}
+    .tag{
+      font-size:12px;
+      color:#ffd7d7;
+      border:1px solid rgba(255,45,45,.25);
+      background: rgba(255,45,45,.08);
+      padding:8px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .grid{grid-template-columns: 1fr} }
+
+    .product{
+      padding:16px;
+      border-radius: var(--r18);
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.25));
+      transition: transform .18s ease, border-color .18s ease;
+      will-change: transform;
+      contain: content;
+    }
+    .product:hover{transform: translateY(-2px); border-color: rgba(255,45,45,.35)}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .product h4{margin:0; font-size:15px}
+    .price{
+      font-weight:900;
+      color:#fff;
+      background: rgba(255,45,45,.14);
+      border:1px solid rgba(255,45,45,.28);
+      padding:7px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .product p{margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.5}
+    .product .actions{margin-top:14px; display:flex; gap:10px; align-items:center; justify-content:space-between}
+    .buy{
+      width:100%;
+      border-radius: 14px;
+      padding:12px 12px;
+      border:1px solid rgba(255,45,45,.55);
+      background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(184,15,26,.85));
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .buy:hover{transform: translateY(-1px); filter: brightness(1.05)}
+    .mini{
+      font-size:12px; color:var(--muted);
+      display:flex; align-items:center; gap:8px;
+    }
+
+    /* checkout panel */
+    .panel{
+      margin-top:18px;
+      padding:18px;
+      border-radius: var(--r18);
+      border:1px solid rgba(255,45,45,.25);
+      background: linear-gradient(180deg, rgba(255,45,45,.08), rgba(0,0,0,.25));
+      box-shadow: var(--shadow);
+      display:none;
+    }
+    .panel.show{display:block; animation: pop .22s ease}
+    @keyframes pop{
+      from{transform: translateY(8px); opacity:0}
+      to{transform: translateY(0); opacity:1}
+    }
+    .steps{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+    }
+    @media (max-width: 900px){ .steps{grid-template-columns:1fr} }
+
+    .box{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.20);
+      border-radius: var(--r18);
+      padding:14px;
+    }
+    .box h5{margin:0 0 8px; font-size:14px}
+    .box ul{margin:0; padding-left:18px; color:var(--muted); line-height:1.55; font-size:13px}
+    .kv{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-top:10px;
+    }
+    .code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.35);
+      color:#fff;
+      font-size:13px;
+    }
+    .copy{
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:800;
+      transition:.18s ease;
+    }
+    .copy:hover{border-color: rgba(255,45,45,.40); transform: translateY(-1px)}
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (max-width: 720px){ .form{grid-template-columns:1fr} }
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+    .field{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      padding:12px;
+      border-radius: 14px;
+      color:var(--text);
+      outline:none;
+      width:100%;
+    }
+    .field:focus{border-color: rgba(255,45,45,.45); box-shadow: 0 0 0 4px rgba(255,45,45,.12)}
+    .submit{
+      margin-top:10px;
+      width:100%;
+      padding:12px 14px;
+      border-radius: 14px;
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      color:#fff;
+      background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(184,15,26,.85));
+      box-shadow: 0 16px 40px rgba(255,45,45,.18);
+      transition:.18s ease;
+    }
+    .submit:hover{transform: translateY(-1px); filter: brightness(1.05)}
+    .submit:disabled{opacity:.55; cursor:not-allowed; transform:none}
+
+    .toast{
+      position:fixed; left:50%; bottom:18px;
+      transform: translateX(-50%);
+      background: rgba(10,10,14,.92);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:12px 14px;
+      box-shadow: var(--shadow);
+      color:var(--text);
+      max-width:min(560px, calc(100vw - 24px));
+      display:none;
+      z-index:999;
+    }
+    .toast.show{display:block; animation: pop .2s ease}
+    .toast .m{color:var(--muted); font-size:13px; margin-top:4px}
+    .toast.ok{border-color: rgba(44,255,138,.25)}
+    .toast.err{border-color: rgba(255,45,45,.35)}
+    .toast .top{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .x{background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:16px}
+    footer{
+      margin-top:26px;
+      padding:18px 0 0;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:13px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .mutedlink{color:var(--muted); text-decoration:underline dotted; text-underline-offset:4px}
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <header>
+    <div class="head">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1 id="brandName">Hidden Community Store</h1>
+          <p id="brandTag">Premium Python tools • Manual payment • Verified delivery</p>
+        </div>
+      </div>
+
+      <nav>
+        <a class="pill" href="#products">Products</a>
+        <a class="pill" href="#how">How it works</a>
+        <a class="pill" href="#support">Support</a>
+        <a class="cta" href="#products">Shop Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="card hero-left">
+        <div class="kicker"><span class="dot"></span> Verified manual delivery — no fake automation</div>
+        <h2 id="heroTitle">Build faster with premium Python tools.</h2>
+        <p id="heroDesc">
+          Choose a tool, pay via bKash/Nagad (Send Money), submit your Transaction ID, and we’ll verify and deliver it.
+          Simple, clear, and handled by a real human.
+        </p>
+        <div class="hero-actions">
+          <button class="btn" onclick="document.querySelector('#products').scrollIntoView({behavior:'smooth'})">Browse Products</button>
+          <button class="btn secondary" onclick="document.querySelector('#how').scrollIntoView({behavior:'smooth'})">How to Buy</button>
+        </div>
+      </div>
+
+      <div class="card hero-right">
+        <div class="stat">
+          <b>Manual verification</b>
+          <span>We check payment + details before delivery.</span>
+        </div>
+        <div class="stat">
+          <b>Instant checkout ID</b>
+          <span>Your Purchase ID is generated automatically.</span>
+        </div>
+        <div class="stat">
+          <b>Clean & mobile-friendly</b>
+          <span>Optimized UI with lightweight animation.</span>
+        </div>
+        <div class="tiny">Tip: For fastest service, include your Purchase ID in payment reference.</div>
+      </div>
+    </section>
+
+    <section id="products">
+      <div class="section-title">
+        <h3>Tools for Python builders</h3>
+        <small id="productHint">Loading products…</small>
+      </div>
+
+      <div class="toolbar">
+        <input id="search" class="input" placeholder="Search tools (example: scraper, bot, automation…)" />
+        <span class="tag" id="payTag">Pay: bKash / Nagad • Send Money only</span>
+      </div>
+
+      <div id="grid" class="grid" aria-live="polite"></div>
+
+      <div id="checkoutPanel" class="panel" aria-live="polite">
+        <div class="row" style="margin-bottom:10px">
+          <div>
+            <h3 style="margin:0;font-size:18px">Checkout</h3>
+            <small style="color:var(--muted)" id="checkoutSub">Preparing your checkout…</small>
+          </div>
+          <button class="copy" id="backBtn">← Back</button>
+        </div>
+
+        <div class="steps">
+          <div class="box">
+            <h5 id="selectedName">Selected tool</h5>
+            <div class="kv">
+              <span class="price" id="selectedPrice">৳0</span>
+              <span class="mini" id="selectedDesc">—</span>
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--line); margin:12px 0">
+
+            <h5>Payment (Manual)</h5>
+            <ul>
+              <li>Open bKash / Nagad app → <b>Send Money</b> (NOT recharge, NOT cash out)</li>
+              <li>Send to the number below</li>
+              <li>Reference (optional but recommended): <b id="refStrong">—</b></li>
+              <li>After paying, submit your Transaction ID + Telegram + Email</li>
+            </ul>
+
+            <div class="kv" style="margin-top:12px">
+              <span class="code" id="payNumber">01576593082</span>
+              <button class="copy" id="copyPay">Copy number</button>
+            </div>
+
+            <div class="kv" style="margin-top:10px">
+              <span class="code" id="purchaseId">Generating Purchase ID…</span>
+              <button class="copy" id="copyPid">Copy ID</button>
+            </div>
+          </div>
+
+          <div class="box">
+            <h5>Complete purchase</h5>
+
+            <div class="form">
+              <div>
+                <label>Transaction ID (TrxID) *</label>
+                <input id="trx" class="field" placeholder="Example: A7B9C1D2E3" required />
+              </div>
+              <div>
+                <label>Telegram username *</label>
+                <input id="tg" class="field" placeholder="@yourusername" required />
+              </div>
+              <div style="grid-column:1/-1">
+                <label>Buyer email *</label>
+                <input id="email" class="field" placeholder="you@example.com" type="email" required />
+              </div>
+            </div>
+
+            <button class="submit" id="submitBtn">Submit & Request Verification</button>
+
+            <p style="margin:10px 0 0; color:var(--muted); font-size:12px; line-height:1.5">
+              After submission, your order will be marked <b>Under Review</b>. We’ll confirm via Telegram/email.
+            </p>
+
+            <div id="support" style="margin-top:10px; font-size:12px; color:var(--muted)">
+              Support: <span id="supportTg">@HiddenSupport</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" style="margin-top:18px">
+      <div class="card" style="padding:18px">
+        <h3 style="margin:0 0 8px">How it works</h3>
+        <ol style="margin:0; padding-left:18px; color:var(--muted); line-height:1.7; font-size:13px">
+          <li>Pick a tool and tap <b>Buy Now</b>.</li>
+          <li>We generate a unique <b>Purchase ID</b>.</li>
+          <li>Pay using <b>Send Money</b> to our number.</li>
+          <li>Submit TrxID + Telegram + Email.</li>
+          <li>We verify and deliver your tool.</li>
+        </ol>
+      </div>
+    </section>
+
+    <footer>
+      <div>© <span id="year"></span> <span id="footName">Hidden Community Store</span> • Manual verification</div>
+      <div>
+        <a class="mutedlink" href="checkout.html">Direct Checkout</a>
+        &nbsp;•&nbsp;
+        <a class="mutedlink" href="admin.html">Admin</a>
+      </div>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <div class="top">
+      <b id="toastTitle">Notice</b>
+      <button class="x" onclick="hideToast()">✕</button>
+    </div>
+    <div class="m" id="toastMsg"></div>
+  </div>
+
+  <script>
+    // ==========================
+    // Premium Storefront (Netlify + Blobs + Functions)
+    // - Products/settings are fetched globally from server (no per-device localStorage issue)
+    // - Telegram + EmailJS are handled server-side (buyers never see keys)
+    // ==========================
+
+    const API = {
+      config: "/.netlify/functions/config-get",
+      orderInit: "/.netlify/functions/order-init",
+      orderComplete: "/.netlify/functions/order-complete"
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    let CONFIG = null;
+    let PRODUCTS = [];
+    let selectedProduct = null;
+    let purchaseId = null;
+
+    // UI helpers
+    let toastTimer = null;
+    function showToast(title, msg, type="ok"){
+      const t = el("toast");
+      el("toastTitle").textContent = title;
+      el("toastMsg").textContent = msg;
+      t.classList.remove("ok","err");
+      t.classList.add(type === "err" ? "err" : "ok");
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(hideToast, 5000);
+    }
+    function hideToast(){ el("toast").classList.remove("show"); }
+
+    async function fetchJSON(url, options={}){
+      const res = await fetch(url, {
+        cache: "no-store",
+        headers: { "content-type": "application/json", ...(options.headers||{}) },
+        ...options
+      });
+      let data = null;
+      try { data = await res.json(); } catch(e){}
+      if(!res.ok) throw new Error((data && data.error) ? data.error : ("Request failed ("+res.status+")"));
+      return data;
+    }
+
+    function fmtBDT(n){
+      const v = Number(n || 0);
+      return "৳" + v.toLocaleString("en-US");
+    }
+
+    function sanitizeTG(v){
+      v = (v||"").trim();
+      if(!v) return "";
+      if(!v.startsWith("@")) v = "@"+v.replace(/^@+/, "");
+      return v;
+    }
+
+    function renderProducts(list){
+      const grid = el("grid");
+      grid.innerHTML = "";
+      const frag = document.createDocumentFragment();
+
+      list.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product";
+
+        card.innerHTML = `
+          <div class="row">
+            <h4>${escapeHTML(p.name)}</h4>
+            <span class="price">${fmtBDT(p.price)}</span>
+          </div>
+          <p>${escapeHTML(p.description || "")}</p>
+          <div class="actions">
+            <button class="buy" data-id="${p.id}">Buy Now</button>
+          </div>
+          <div class="mini">Manual verification • Delivery after confirmation</div>
+        `;
+
+        frag.appendChild(card);
+      });
+
+      grid.appendChild(frag);
+
+      // One delegated listener (better performance than many listeners)
+      grid.onclick = async (e) => {
+        const btn = e.target.closest("button.buy");
+        if(!btn) return;
+        const id = btn.getAttribute("data-id");
+        const p = PRODUCTS.find(x => x.id === id);
+        if(!p) return showToast("Not found", "This product is not available anymore. Please refresh.", "err");
+
+        await openCheckout(p);
+      };
+    }
+
+    function escapeHTML(str){
+      return String(str||"").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[m]));
+    }
+
+    function setBrandUI(cfg){
+      el("brandName").textContent = cfg.brand?.name || "Hidden Community Store";
+      el("footName").textContent = cfg.brand?.name || "Hidden Community Store";
+      el("brandTag").textContent = cfg.brand?.tagline || "Premium Python tools • Manual payment • Verified delivery";
+      el("supportTg").textContent = cfg.support?.telegram || "@HiddenSupport";
+      el("payNumber").textContent = cfg.payment?.number || "01576593082";
+      el("payTag").textContent = "Pay: bKash / Nagad • Send Money only";
+    }
+
+    async function loadConfig(){
+      el("productHint").textContent = "Loading products…";
+      const data = await fetchJSON(API.config, { method: "GET" });
+      CONFIG = data.config;
+      PRODUCTS = Array.isArray(CONFIG.products) ? CONFIG.products : [];
+      setBrandUI(CONFIG);
+
+      renderProducts(PRODUCTS);
+      el("productHint").textContent = PRODUCTS.length ? (PRODUCTS.length + " products available") : "No products yet";
+    }
+
+    // Checkout open/close
+    function closeCheckout(){
+      el("checkoutPanel").classList.remove("show");
+      selectedProduct = null;
+      purchaseId = null;
+      el("purchaseId").textContent = "—";
+      el("checkoutSub").textContent = "Choose a product to start checkout.";
+      history.replaceState(null, "", "#products");
+    }
+
+    async function openCheckout(product){
+      selectedProduct = product;
+      el("selectedName").textContent = product.name;
+      el("selectedPrice").textContent = fmtBDT(product.price);
+      el("selectedDesc").textContent = product.description || "";
+      el("checkoutSub").textContent = "Generating your Purchase ID…";
+      el("trx").value = "";
+      el("tg").value = "";
+      el("email").value = "";
+      el("submitBtn").disabled = true;
+
+      el("checkoutPanel").classList.add("show");
+      el("checkoutPanel").scrollIntoView({behavior:"smooth", block:"start"});
+
+      // Create a pending order server-side so the ID is globally unique
+      try{
+        const init = await fetchJSON(API.orderInit, {
+          method:"POST",
+          body: JSON.stringify({ productId: product.id })
+        });
+
+        purchaseId = init.purchaseId;
+        el("purchaseId").textContent = purchaseId;
+        el("refStrong").textContent = purchaseId;
+        el("checkoutSub").textContent = "Pay first, then submit your details below.";
+        el("submitBtn").disabled = false;
+
+        // add to URL so user can reload and still have the id
+        history.replaceState(null, "", "#checkout-"+encodeURIComponent(purchaseId));
+      }catch(err){
+        showToast("Checkout failed", err.message || "Could not generate Purchase ID.", "err");
+        el("checkoutSub").textContent = "Could not generate Purchase ID. Try again.";
+      }
+    }
+
+    async function submitOrder(){
+      if(!selectedProduct || !purchaseId) return showToast("Missing data", "Please re-open checkout.", "err");
+
+      const trx = el("trx").value.trim();
+      const tg = sanitizeTG(el("tg").value);
+      const email = el("email").value.trim();
+
+      if(trx.length < 5) return showToast("Transaction ID required", "Please enter a valid TrxID.", "err");
+      if(!tg || tg.length < 3) return showToast("Telegram required", "Please enter your Telegram username.", "err");
+      if(!email || !email.includes("@")) return showToast("Email required", "Please enter a valid email address.", "err");
+
+      el("submitBtn").disabled = true;
+      el("submitBtn").textContent = "Submitting…";
+
+      try{
+        const out = await fetchJSON(API.orderComplete, {
+          method:"POST",
+          body: JSON.stringify({
+            purchaseId,
+            transactionId: trx,
+            telegram: tg,
+            email
+          })
+        });
+
+        showToast("Order received ✅", "Purchase ID: " + out.purchaseId + " — Status: Under Review.", "ok");
+        el("checkoutSub").textContent = "Submitted ✅ Your purchase is under review.";
+        el("submitBtn").textContent = "Submitted";
+      }catch(err){
+        showToast("Submit failed", err.message || "Please try again.", "err");
+        el("submitBtn").disabled = false;
+        el("submitBtn").textContent = "Submit & Request Verification";
+      }
+    }
+
+    // Copy buttons
+    async function copyText(txt){
+      try{
+        await navigator.clipboard.writeText(txt);
+        showToast("Copied", txt + " copied to clipboard.");
+      }catch(e){
+        showToast("Copy failed", "Your browser blocked clipboard. Please copy manually.", "err");
+      }
+    }
+
+    // events
+    el("copyPay").onclick = () => copyText(el("payNumber").textContent.trim());
+    el("copyPid").onclick = () => purchaseId ? copyText(purchaseId) : showToast("Not ready", "Purchase ID not generated yet.", "err");
+    el("submitBtn").onclick = submitOrder;
+    el("backBtn").onclick = closeCheckout;
+
+    el("search").addEventListener("input", () => {
+      const q = el("search").value.trim().toLowerCase();
+      const filtered = PRODUCTS.filter(p =>
+        (p.name||"").toLowerCase().includes(q) ||
+        (p.description||"").toLowerCase().includes(q)
+      );
+      renderProducts(filtered);
+      el("productHint").textContent = filtered.length + " match(es)";
+    });
+
+    // init
+    el("year").textContent = new Date().getFullYear();
+
+    // If user comes via checkout.html or deep link: #checkout-<id>
+    (async function boot(){
+      try{
+        await loadConfig();
+        const hash = (location.hash || "");
+        if(hash.startsWith("#checkout-")){
+          // We don't know product from the hash alone; user should start from product list.
+          // Keep it simple: just open the panel.
+          el("checkoutPanel").classList.add("show");
+          el("checkoutSub").textContent = "Choose a product to generate a Purchase ID.";
+        }
+      }catch(err){
+        showToast("Load failed", "Could not load store config. Please refresh.", "err");
+        el("productHint").textContent = "Failed to load products";
+      }
+    })();
+  </script>
+</body>
+</html>
