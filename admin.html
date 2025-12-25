@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin • Hidden Community Store</title>
+  <style>
+    :root{
+      --bg:#07070a; --panel:#0f0f14; --text:#eaeaf2; --muted:#a7a7b6;
+      --line:rgba(255,255,255,.08);
+      --red:#ff2d2d; --red2:#b80f1a;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --r18:18px; --r14:14px;
+      --ok:#2cff8a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(900px 380px at 20% -10%, rgba(255,45,45,.22), transparent 55%),
+        radial-gradient(850px 380px at 90% 0%, rgba(255,45,45,.12), transparent 55%),
+        var(--bg);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:22px 16px 60px}
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      padding:14px 16px;
+      position:sticky; top:0;
+      background: rgba(7,7,10,.9);
+      border-bottom:1px solid var(--line);
+      backdrop-filter: blur(10px);
+      z-index:50;
+    }
+    .title{display:flex; align-items:center; gap:10px}
+    .badge{
+      width:40px;height:40px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(184,15,26,.85));
+      box-shadow: 0 16px 40px rgba(255,45,45,.18);
+    }
+    h1{margin:0; font-size:16px}
+    .muted{color:var(--muted); font-size:13px}
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(0,0,0,.25));
+      border:1px solid var(--line);
+      border-radius: var(--r18);
+      box-shadow: var(--shadow);
+      padding:16px;
+    }
+    .grid{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+
+    .row{display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    .btn{
+      cursor:pointer;
+      border:none;
+      border-radius: 14px;
+      padding:11px 12px;
+      font-weight:900;
+      color:#fff;
+      background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(184,15,26,.85));
+      box-shadow: 0 16px 40px rgba(255,45,45,.18);
+      transition:.18s ease;
+    }
+    .btn:hover{transform: translateY(-1px); filter: brightness(1.05)}
+    .btn.secondary{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--text);
+      box-shadow:none;
+    }
+    .btn.danger{
+      background: rgba(255,45,45,.12);
+      border:1px solid rgba(255,45,45,.35);
+      color:#ffd7d7;
+      box-shadow:none;
+    }
+
+    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px}
+    input,textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      padding:12px;
+      border-radius: 14px;
+      color:var(--text);
+      outline:none;
+    }
+    input:focus,textarea:focus{border-color: rgba(255,45,45,.45); box-shadow: 0 0 0 4px rgba(255,45,45,.12)}
+    textarea{min-height:80px; resize:vertical}
+
+    table{width:100%; border-collapse: collapse; margin-top:10px}
+    th,td{border-bottom:1px solid var(--line); padding:10px; text-align:left; vertical-align:top; font-size:13px}
+    th{color:var(--muted); font-weight:800}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .pill.ok{border-color: rgba(44,255,138,.25); color: #bfffe0}
+    .pill.warn{border-color: rgba(255,209,102,.25); color: #ffe7bf}
+    .pill.red{border-color: rgba(255,45,45,.25); color: #ffd7d7}
+
+    .toast{
+      position:fixed; left:50%; bottom:18px;
+      transform: translateX(-50%);
+      background: rgba(10,10,14,.92);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:12px 14px;
+      box-shadow: var(--shadow);
+      color:var(--text);
+      max-width:min(560px, calc(100vw - 24px));
+      display:none;
+      z-index:999;
+    }
+    .toast.show{display:block}
+    .toast b{display:block}
+    .toast small{display:block; margin-top:4px; color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div class="title">
+      <div class="badge"></div>
+      <div>
+        <h1>Admin Panel</h1>
+        <div class="muted">Manage products, payment number, store branding, and orders.</div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn secondary" id="logoutBtn" style="display:none">Logout</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="loginCard" class="card" style="max-width:520px; margin:0 auto">
+      <h2 style="margin:0 0 8px; font-size:18px">Sign in</h2>
+      <div class="muted">Password is checked server-side (not stored in frontend).</div>
+      <label>Admin password</label>
+      <input id="pw" type="password" placeholder="Enter admin password" />
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="loginBtn">Login</button>
+      </div>
+    </section>
+
+    <section id="panel" style="display:none">
+      <div class="grid" style="margin-top:12px">
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0; font-size:16px">Store settings</h2>
+            <span class="pill" id="verPill">v—</span>
+          </div>
+          <label>Store name</label>
+          <input id="storeName" />
+          <label>Tagline</label>
+          <input id="tagline" />
+          <label>Payment number (bKash + Nagad)</label>
+          <input id="payNumber" />
+          <label>Support Telegram</label>
+          <input id="supportTg" placeholder="@HiddenSupport" />
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="saveSettingsBtn">Save changes</button>
+          </div>
+
+          <div class="muted" style="margin-top:10px; font-size:12px; line-height:1.5">
+            Note: Telegram bot token & EmailJS keys are stored in Netlify Environment Variables (more secure).
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0; font-size:16px">Add new product</h2>
+          </div>
+          <label>Tool name</label>
+          <input id="newName" placeholder="Example: Fast Scraper Pro" />
+          <label>Short description</label>
+          <textarea id="newDesc" placeholder="What does it do? Keep it short and clear."></textarea>
+          <label>Price (BDT)</label>
+          <input id="newPrice" type="number" min="0" placeholder="Example: 299" />
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="addProductBtn">Add product</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="row">
+          <h2 style="margin:0; font-size:16px">Products</h2>
+          <span class="muted" id="prodCount">—</span>
+        </div>
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th style="min-width:280px">Description</th>
+                <th style="width:220px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="prodTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="row">
+          <h2 style="margin:0; font-size:16px">Orders</h2>
+          <div class="row">
+            <button class="btn secondary" id="refreshOrdersBtn">Refresh</button>
+          </div>
+        </div>
+
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Purchase ID</th>
+                <th>Status</th>
+                <th>Product</th>
+                <th>TrxID</th>
+                <th>Telegram</th>
+                <th>Email</th>
+                <th style="width:260px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast">
+    <b id="tTitle">Notice</b>
+    <small id="tMsg"></small>
+  </div>
+
+  <script>
+    const API = {
+      login: "/.netlify/functions/admin-login",
+      getConfig: "/.netlify/functions/admin-config-get",
+      updateConfig: "/.netlify/functions/admin-config-update",
+      listOrders: "/.netlify/functions/admin-orders-list",
+      setStatus: "/.netlify/functions/admin-order-status",
+      delOrder: "/.netlify/functions/admin-order-delete"
+    };
+
+    const el = (id)=>document.getElementById(id);
+
+    let token = sessionStorage.getItem("adminToken") || "";
+    let config = null;
+
+    function toast(title, msg){
+      el("tTitle").textContent = title;
+      el("tMsg").textContent = msg;
+      el("toast").classList.add("show");
+      setTimeout(()=> el("toast").classList.remove("show"), 4000);
+    }
+
+    async function fetchJSON(url, opt={}){
+      const res = await fetch(url, {
+        method: opt.method || "GET",
+        headers: {
+          "content-type":"application/json",
+          ...(token ? {"authorization":"Bearer "+token} : {}),
+          ...(opt.headers||{})
+        },
+        body: opt.body ? JSON.stringify(opt.body) : undefined
+      });
+      const data = await res.json().catch(()=> ({}));
+      if(!res.ok) throw new Error(data.error || ("Request failed ("+res.status+")"));
+      return data;
+    }
+
+    function shortId(){
+      // Short, readable product IDs: p-xxxxxx (base36)
+      return "p-" + Math.random().toString(36).slice(2, 8);
+    }
+
+    function statusPill(status){
+      const s = (status||"").toLowerCase();
+      if(s === "awaiting_payment") return `<span class="pill warn">Awaiting payment</span>`;
+      if(s === "under_review") return `<span class="pill warn">Under review</span>`;
+      if(s === "approved") return `<span class="pill ok">Approved</span>`;
+      if(s === "delivered") return `<span class="pill ok">Delivered</span>`;
+      return `<span class="pill red">${status || "unknown"}</span>`;
+    }
+
+    function renderProducts(){
+      const tb = el("prodTbody");
+      tb.innerHTML = "";
+      const list = Array.isArray(config.products) ? config.products : [];
+      el("prodCount").textContent = list.length + " items";
+
+      list.forEach((p, idx)=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><b>${escapeHTML(p.name)}</b><div class="muted">${escapeHTML(p.id)}</div></td>
+          <td>${Number(p.price||0)}</td>
+          <td>${escapeHTML(p.description||"")}</td>
+          <td>
+            <button class="btn secondary" data-act="edit" data-i="${idx}">Edit</button>
+            <button class="btn danger" data-act="del" data-i="${idx}">Delete</button>
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+
+      tb.onclick = async (e)=>{
+        const btn = e.target.closest("button");
+        if(!btn) return;
+        const act = btn.getAttribute("data-act");
+        const i = Number(btn.getAttribute("data-i"));
+        const list = config.products;
+
+        if(act === "del"){
+          if(!confirm("Delete this product?")) return;
+          list.splice(i,1);
+          renderProducts();
+          toast("Removed", "Product removed locally. Click Save changes to publish.");
+        }
+        if(act === "edit"){
+          const p = list[i];
+          const name = prompt("Name:", p.name) ?? p.name;
+          const price = prompt("Price (BDT):", p.price) ?? p.price;
+          const desc = prompt("Description:", p.description) ?? p.description;
+          p.name = String(name).trim();
+          p.price = Number(price)||0;
+          p.description = String(desc).trim();
+          renderProducts();
+          toast("Updated", "Edited locally. Click Save changes to publish.");
+        }
+      };
+    }
+
+    function renderOrders(orders){
+      const tb = el("ordersTbody");
+      tb.innerHTML = "";
+      orders.forEach(o=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><b>${escapeHTML(o.purchaseId)}</b><div class="muted">${escapeHTML(o.createdAt || "")}</div></td>
+          <td>${statusPill(o.status)}</td>
+          <td>${escapeHTML(o.productName || "")}<div class="muted">৳${Number(o.price||0)}</div></td>
+          <td>${escapeHTML(o.transactionId || "-")}</td>
+          <td>${escapeHTML(o.telegram || "-")}</td>
+          <td>${escapeHTML(o.email || "-")}</td>
+          <td>
+            <button class="btn secondary" data-act="status" data-id="${o.purchaseId}" data-st="approved">Approve</button>
+            <button class="btn secondary" data-act="status" data-id="${o.purchaseId}" data-st="delivered">Delivered</button>
+            <button class="btn danger" data-act="delete" data-id="${o.purchaseId}">Delete</button>
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+
+      tb.onclick = async (e)=>{
+        const btn = e.target.closest("button");
+        if(!btn) return;
+        const act = btn.getAttribute("data-act");
+        const pid = btn.getAttribute("data-id");
+        if(!pid) return;
+
+        try{
+          if(act === "status"){
+            const st = btn.getAttribute("data-st");
+            await fetchJSON(API.setStatus, { method:"POST", body:{ purchaseId: pid, status: st }});
+            toast("Updated", "Order status updated.");
+            await loadOrders();
+          }
+          if(act === "delete"){
+            if(!confirm("Delete this order permanently?")) return;
+            await fetchJSON(API.delOrder, { method:"POST", body:{ purchaseId: pid }});
+            toast("Deleted", "Order deleted.");
+            await loadOrders();
+          }
+        }catch(err){
+          toast("Error", err.message || "Failed");
+        }
+      };
+    }
+
+    function escapeHTML(str){
+      return String(str||"").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[m]));
+    }
+
+    async function loadConfig(){
+      const data = await fetchJSON(API.getConfig);
+      config = data.config;
+
+      el("storeName").value = config.brand?.name || "";
+      el("tagline").value = config.brand?.tagline || "";
+      el("payNumber").value = config.payment?.number || "";
+      el("supportTg").value = config.support?.telegram || "";
+      el("verPill").textContent = "v" + (config.version || 1);
+
+      renderProducts();
+    }
+
+    async function loadOrders(){
+      const data = await fetchJSON(API.listOrders);
+      renderOrders(data.orders || []);
+    }
+
+    async function login(){
+      const pw = el("pw").value;
+      if(!pw) return toast("Missing", "Enter password.");
+      try{
+        const out = await fetchJSON(API.login, { method:"POST", body:{ password: pw }});
+        token = out.token;
+        sessionStorage.setItem("adminToken", token);
+        toast("Welcome", "Login successful.");
+
+        el("loginCard").style.display = "none";
+        el("panel").style.display = "block";
+        el("logoutBtn").style.display = "inline-block";
+
+        await loadConfig();
+        await loadOrders();
+      }catch(err){
+        toast("Login failed", err.message || "Wrong password");
+      }
+    }
+
+    async function saveAll(){
+      try{
+        // write settings into config object
+        config.brand = config.brand || {};
+        config.payment = config.payment || {};
+        config.support = config.support || {};
+
+        config.brand.name = el("storeName").value.trim() || "Hidden Community Store";
+        config.brand.tagline = el("tagline").value.trim() || "Premium Python tools • Manual payment • Verified delivery";
+        config.payment.number = el("payNumber").value.trim() || "01576593082";
+        config.support.telegram = el("supportTg").value.trim() || "@HiddenSupport";
+
+        await fetchJSON(API.updateConfig, { method:"POST", body:{ config }});
+        toast("Saved", "Published globally. All users will see updates.");
+        await loadConfig();
+      }catch(err){
+        toast("Save failed", err.message || "Error");
+      }
+    }
+
+    function addProduct(){
+      const name = el("newName").value.trim();
+      const desc = el("newDesc").value.trim();
+      const price = Number(el("newPrice").value || 0);
+
+      if(!name || !desc || !price) return toast("Missing", "Fill name, description and price.");
+
+      config.products = Array.isArray(config.products) ? config.products : [];
+      config.products.unshift({
+        id: shortId(),
+        name,
+        description: desc,
+        price
+      });
+
+      el("newName").value = "";
+      el("newDesc").value = "";
+      el("newPrice").value = "";
+
+      renderProducts();
+      toast("Added", "Product added locally. Click Save changes to publish.");
+    }
+
+    // events
+    el("loginBtn").onclick = login;
+    el("saveSettingsBtn").onclick = saveAll;
+    el("addProductBtn").onclick = addProduct;
+    el("refreshOrdersBtn").onclick = loadOrders;
+
+    el("logoutBtn").onclick = ()=>{
+      sessionStorage.removeItem("adminToken");
+      token = "";
+      location.reload();
+    };
+
+    // auto boot if token exists
+    (async function(){
+      if(token){
+        el("loginCard").style.display = "none";
+        el("panel").style.display = "block";
+        el("logoutBtn").style.display = "inline-block";
+        try{
+          await loadConfig();
+          await loadOrders();
+        }catch(e){
+          // token expired or invalid
+          sessionStorage.removeItem("adminToken");
+          token = "";
+          el("loginCard").style.display = "block";
+          el("panel").style.display = "none";
+          el("logoutBtn").style.display = "none";
+          toast("Session expired", "Please login again.");
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
